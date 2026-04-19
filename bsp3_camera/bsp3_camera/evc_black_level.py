@@ -22,15 +22,16 @@ def evc_read_file_info(filename: str) -> tuple[int, tuple[float, float, float]]:
             image.
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-    # HINT: 'PIL.TiffTags.TAGS' might be useful.
+    img = Image.open(filename)
+    meta_dict = {TAGS[key]: img.tag_v2[key] for key in img.tag_v2}
 
-    # NOTE: The following two lines can be removed. They prevent the
-    #       framework from crashing.
+    bl = meta_dict["BlackLevel"]
+    if isinstance(bl, (tuple, list)):
+        bl = bl[0]
+    blackLevel = int(bl)
 
-    blackLevel = 0
-    asShotNeutral = (1.0, 1.0, 1.0)
-
+    asn = meta_dict["AsShotNeutral"]
+    asShotNeutral = (float(asn[0]), float(asn[1]), float(asn[2]))
     ### END STUDENT CODE
 
     return blackLevel, asShotNeutral
@@ -52,13 +53,9 @@ def evc_transform_colors(input_image: np.ndarray, blackLevel: float) -> np.ndarr
         All values below the black level have to be 0.
     """
     ### STUDENT CODE
-    # TODO:  Implement this function.
-
-    # NOTE:  The following line can be removed. It prevents the framework
-    #       from crashing.
-
-    result = np.zeros(input_image.shape)
-
+    img = input_image.astype(float)
+    result = (img - float(blackLevel)) / (65535.0 - float(blackLevel))
+    result = np.maximum(result, 0.0)
     ### END STUDENT CODE
 
     return result

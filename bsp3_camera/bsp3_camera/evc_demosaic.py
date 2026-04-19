@@ -24,17 +24,17 @@ def evc_demosaic_pattern(
           - G is the blue channel of the image. (without interpolation)
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-    # HINT: For this task the "start:end:step" array slicing might be useful.
-    #       Find the correct Bayer-Pattern depending on your dataset.
-    #       No interpolation needs to be performed here!
-
-    # NOTE: The following three lines can be removed. They prevent the framework
-    #       from crashing.
-
     R = np.zeros(input_image.shape)
     G = np.zeros(input_image.shape)
     B = np.zeros(input_image.shape)
+
+    # Dataset uses BGGR pattern:
+    #   B G
+    #   G R
+    B[0::2, 0::2] = input_image[0::2, 0::2]
+    G[0::2, 1::2] = input_image[0::2, 1::2]
+    G[1::2, 0::2] = input_image[1::2, 0::2]
+    R[1::2, 1::2] = input_image[1::2, 1::2]
     ### END STUDENT CODE
 
     return R, G, B
@@ -67,13 +67,9 @@ def evc_transform_neutral(
             value)
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-    # NOTE: The following three lines can be removed. They prevent the framework
-    #       from crashing.
-
-    R_trans = np.zeros(R.shape)
-    G_trans = np.zeros(G.shape)
-    B_trans = np.zeros(B.shape)
+    R_trans = R / asShotNeutral[0]
+    G_trans = G / asShotNeutral[1]
+    B_trans = B / asShotNeutral[2]
     ### END STUDENT CODE
 
     return R_trans, G_trans, B_trans
@@ -98,16 +94,20 @@ def evc_interpolate(
           - B_inter is the blue channel of the image (without missing values)
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-    # HINT: The function 'scipy.ndimage.correlate' might be useful.
+    green_filter = np.array([
+        [0.00, 0.25, 0.00],
+        [0.25, 1.00, 0.25],
+        [0.00, 0.25, 0.00],
+    ])
+    rb_filter = np.array([
+        [0.25, 0.50, 0.25],
+        [0.50, 1.00, 0.50],
+        [0.25, 0.50, 0.25],
+    ])
 
-    # NOTE: The following three lines can be removed. They prevent the framework
-    #       from crashing.
-
-    R_inter = np.zeros(np.shape(red))
-    G_inter = np.zeros(np.shape(green))
-    B_inter = np.zeros(np.shape(blue))
-
+    R_inter = scipy.ndimage.correlate(red, rb_filter, mode="constant")
+    G_inter = scipy.ndimage.correlate(green, green_filter, mode="constant")
+    B_inter = scipy.ndimage.correlate(blue, rb_filter, mode="constant")
     ### END STUDENT CODE
 
     return R_inter, G_inter, B_inter
@@ -127,14 +127,7 @@ def evc_concat(R: np.ndarray, G: np.ndarray, B: np.ndarray) -> np.ndarray:
         The resulting image.
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-    # HINT: The function 'np.stack' might be useful.
-
-    # NOTE: The following line can be removed. It prevents the framework
-    #       from crashing.
-
-    result = np.zeros([*R.shape[:2], 3])
-
+    result = np.stack([R, G, B], axis=-1)
     ### END STUDENT CODE
 
     return result
