@@ -26,14 +26,9 @@ def evc_prepare_histogram_range(
           - newHigh is the new white value.
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-
-    # NOTE: The following two lines can be removed. They prevent the
-    #       framework from crashing.
-
-    newLow = low
-    newHigh = high
-
+    newLow = max(low, 0.0)
+    max_intensity = float(np.max(input_image))
+    newHigh = min(high, max_intensity)
     ### END STUDENT CODE
 
     return newLow, newHigh
@@ -55,15 +50,10 @@ def evc_transform_histogram(
         The image after the histogram normalization.
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-    # HINT: If the current white value is smaller than the maximum intensity
-    #       of the image, this function will create values larger than 1.
-
-    # NOTE: The following line can be removed. It prevents the framework
-    #       from crashing.
-
-    result = np.zeros(input_image.shape)
-
+    denom = newHigh - newLow
+    if denom == 0:
+        denom = 1e-10
+    result = (input_image - newLow) / denom
     ### END STUDENT CODE
 
     return result
@@ -81,13 +71,7 @@ def evc_clip_histogram(input_image: np.ndarray) -> np.ndarray:
         The image after the clipping operation.
     """
     ### STUDENT CODE
-    # TODO: Implement this function.
-
-    # NOTE: The following line can be removed. It prevents the framework
-    #       from crashing.
-
-    result = np.zeros(input_image.shape)
-
+    result = np.clip(input_image, 0.0, 1.0)
     ### END STUDENT CODE
 
     return result

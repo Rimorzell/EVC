@@ -21,16 +21,9 @@ def evc_compute_binary(input_image: np.ndarray, x: float, top: int) -> np.ndarra
         (the operation has to be performed on every channel).
     """
     ### STUDENT CODE
-    # TODO: Compute a binary image with the threshold x. Values less or equal
-    #       to x are mapped to 0, values greater than x are mapped to 1.
-    #       If top == 0 the output should be inverted such that 0 becomes 1
-    #       and 1 becomes 0 (swap 0 and 1).
-
-    # NOTE: The following line can be removed. It prevents the framework from
-    #       crashing.
-
-    result = np.zeros(input_image.shape)
-
+    result = (input_image > x).astype(float)
+    if top == 0:
+        result = 1.0 - result
     ### END STUDENT CODE
 
     return result
